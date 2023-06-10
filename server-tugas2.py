@@ -14,22 +14,25 @@ class ProcessTheClient(threading.Thread):
 
 	def run(self):
 		while True:
-			data = self.connection.recv(32)
-			data_string = data.decode()
-			if data:
-				data_front = data_string[:4]
-				data_back = data_string[-4:]
-				print(data_front, data_back)
-				if(data_front == 'TIME' and data_back == '1310'):
-					currentDateAndTime = datetime.now()
-					currentTime = currentDateAndTime.strftime("%H:%M:%S")
-					reply = "JAM " + currentTime + " 1310"
-					self.connection.sendall(reply.encode())
+			try:
+				data = self.connection.recv(32)
+				data_string = data.decode()
+				if data:
+					data_front = data_string[:4]
+					data_back = data_string[-4:]
+					print(data_front, data_back)
+					if(data_front == 'TIME' and data_back == '1310'):
+						currentDateAndTime = datetime.now()
+						currentTime = currentDateAndTime.strftime("%H:%M:%S")
+						reply = "JAM " + currentTime + " 1310"
+						self.connection.sendall(reply.encode())
+					else:
+						reply = "Request rejected"
+						self.connection.sendall(reply.encode())
 				else:
-					reply = "Request rejected"
-					self.connection.sendall(reply.encode())
-			else:
-				break
+					break
+			finally:
+				continue
 		self.connection.close()
 
 class Server(threading.Thread):
